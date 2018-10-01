@@ -1,8 +1,7 @@
 {
   "scripts": {
     "build": "babel src -d dist",
-    "run": "node dist/server.js",
-    "start": "yarn build && yarn start"
+    "start": "node dist/server.js"
   },
   "dependencies": {
     "@babel/cli": "^7.1.2",
