@@ -3,6 +3,11 @@
     "build": "babel src -d dist",
     "start": "node dist/server.js"
   },
+  "husky": {
+    "hooks": {
+      "pre-push": "yarn build && git add dist && git commit -m \"autobuild\""
+    }
+  },
   "dependencies": {
     "@babel/cli": "^7.1.2",
     "express": "^4.16.3"
