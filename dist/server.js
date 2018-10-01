@@ -21,9 +21,7 @@ function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(
 var typeDefs = (0, _apolloServerExpress.gql)(_templateObject());
 var resolvers = {
   Query: {
-    hello: function hello() {
-      return "world";
-    }
+    hello: function hello() {}
   }
 };
 var app = (0, _express.default)();
