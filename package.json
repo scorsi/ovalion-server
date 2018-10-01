@@ -2,7 +2,7 @@
   "scripts": {
     "build": "babel src -d dist",
     "run": "node dist/server.js",
-    "start": "yarn build && yarn run"
+    "start": "yarn build && yarn start"
   },
   "dependencies": {
     "@babel/cli": "^7.1.2",
