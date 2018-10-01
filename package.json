@@ -5,7 +5,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-push": "yarn build && git add dist && git commit -m \"autobuild\""
+      "pre-push": "yarn build && git add dist && (git commit -m \"autobuild\" || true)"
     }
   },
   "dependencies": {
