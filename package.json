@@ -1,7 +1,8 @@
 {
   "scripts": {
     "build": "babel src -d dist",
-    "start": "node dist/server.js",
+    "start": "node -r dotenv/config dist/server.js",
+    "dev": "nodemon --watch src --exec \"yarn build && yarn start\"",
     "migrate": "node-pg-migrate"
   },
   "husky": {
@@ -10,16 +11,21 @@
     }
   },
   "dependencies": {
-    "@babel/cli": "^7.1.2",
     "apollo-server-express": "^2.1.0",
+    "bcrypt": "^3.0.2",
+    "dotenv": "^6.1.0",
     "express": "^4.16.3",
     "graphql": "^14.0.2",
+    "jsonwebtoken": "^8.3.0",
+    "lodash": "^4.17.11",
     "pg": "^7.4.3"
   },
   "devDependencies": {
+    "@babel/cli": "^7.1.2",
     "@babel/core": "^7.1.2",
     "@babel/preset-env": "^7.1.0",
     "husky": "^1.0.1",
-    "node-pg-migrate": "^3.11.0"
+    "node-pg-migrate": "^3.11.0",
+    "nodemon": "^1.18.4"
   }
 }
