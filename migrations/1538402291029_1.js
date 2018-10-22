@@ -136,7 +136,7 @@ exports.up = (pgm) => {
     }
   });
 
-  // USER TRAVELS
+  // USER MATCHES
   pgm.createTable("user_matches", {
     userId: {
       type: "integer",
