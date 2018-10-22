@@ -4,36 +4,74 @@ var _express = _interopRequireDefault(require("express"));
 
 var _apolloServerExpress = require("apollo-server-express");
 
+var _user = require("./user");
+
+var _startsWith = _interopRequireDefault(require("lodash/startsWith"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _templateObject() {
-  var data = _taggedTemplateLiteral(["\n    type Query {\n        hello: String\n    }\n"]);
-
-  _templateObject = function _templateObject() {
-    return data;
-  };
-
-  return data;
-}
-
-function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-
-var typeDefs = (0, _apolloServerExpress.gql)(_templateObject());
-var resolvers = {
+const typeDefs = _apolloServerExpress.gql`
+    type Query {
+        user(username: String!): User
+        users: [User]!
+    }
+    type Mutation {
+        register(username: String!, email: String!, password: String!): User
+        authenticate(username: String!, password: String!): String
+    }
+    type User {
+        id: Int!
+        username: String!
+        email: String!
+        createdAt: Int!
+    }
+`;
+const resolvers = {
   Query: {
-    hello: function hello() {}
+    user: _user.getUserByUsername,
+    users: _user.getAllUser
+  },
+  Mutation: {
+    register: _user.createUser,
+    authenticate: _user.authenticateUser
   }
 };
-var app = (0, _express.default)();
-var apollo = new _apolloServerExpress.ApolloServer({
-  typeDefs: typeDefs,
-  resolvers: resolvers,
-  path: "/graphql"
+const app = (0, _express.default)();
+const apollo = new _apolloServerExpress.ApolloServer({
+  typeDefs,
+  resolvers,
+  path: "/graphql",
+  tracing: true,
+  context: async ({
+    req,
+    connection
+  }) => {
+    if (connection) {
+      return {};
+    } else {
+      const authorizationHeader = req.headers.authorization || '';
+
+      if ((0, _startsWith.default)(authorizationHeader, 'Bearer ')) {
+        const token = authorizationHeader.substring(7);
+        const user = (0, _user.validateUser)(token);
+        console.log(user);
+        if (user === null) throw new Error('Unauthorized');
+        return {
+          auth: {
+            token,
+            user
+          }
+        };
+      }
+
+      return {
+        auth: undefined
+      };
+    }
+  }
 });
 apollo.applyMiddleware({
-  app: app
+  app
 });
-var PORT = process.env.PORT || 5000;
-app.listen(PORT, function () {
-  return console.log("Example app listening on port ".concat(PORT, "!"));
-});
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`));
