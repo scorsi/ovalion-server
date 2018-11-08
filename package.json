@@ -2,12 +2,12 @@
   "scripts": {
     "build": "babel src -d dist",
     "start": "node -r dotenv/config dist/server.js",
-    "dev": "nodemon --watch src --exec \"yarn build && yarn start\"",
+    "dev": "nodemon --watch src --exec \"npm run build && npm run start\"",
     "migrate": "node-pg-migrate"
   },
   "husky": {
     "hooks": {
-      "pre-push": "yarn build && git add dist && (git commit -m \"autobuild\" || true)"
+      "pre-push": "npm run build && git add dist && (git commit -m \"autobuild\" || true)"
     }
   },
   "dependencies": {
