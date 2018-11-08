@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.validateUser = exports.authenticateUser = exports.createUser = exports.getUserByUsername = exports.getAllUser = void 0;
+exports.validateUser = exports.authenticateUser = exports.createUser = exports.getUserById = exports.getUserByUsername = exports.getAllUsers = void 0;
 
 var _bcrypt = _interopRequireDefault(require("bcrypt"));
 
@@ -17,7 +17,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-const cert = 'shhhhhh';
+const cert = "shhhhhh";
 
 const createHash = async data => {
   return await _bcrypt.default.hash(data, 20);
@@ -27,62 +27,65 @@ const compareHash = async (d1, d2) => {
   return await _bcrypt.default.compare(d1, d2);
 };
 
-const getAllUser = async (root, {}, context) => {
-  const _ref = await _databaseclient.default.query('SELECT * FROM users;'),
+const getAllUsers = async actualUser => {
+  const _ref = await _databaseclient.default.query("SELECT * FROM users;"),
         users = _ref.rows;
 
   return users.map(user => _objectSpread({}, user, {
-    createdAt: Math.floor(user.createdAt / 1000)
+    createdAt: Math.floor(user.created_at / 1000)
   }));
 };
 
-exports.getAllUser = getAllUser;
+exports.getAllUsers = getAllUsers;
 
-const getUserByUsername = async (root, {
-  username
-}, context) => {
-  const res = await _databaseclient.default.query('SELECT * FROM users WHERE username = $1', [username]);
-  const user = res.rows[0];
-  if (user === undefined) return null;
-  return _objectSpread({}, user, {
-    createdAt: Math.floor(user.createdAt / 1000)
-  });
+const getUserByUsername = async (actualUser, username) => {
+  const _ref2 = await _databaseclient.default.query("SELECT * FROM users WHERE username = $1 LIMIT 1;", [username]),
+        users = _ref2.rows;
+
+  const user = users[0];
+  if (user !== undefined) return _objectSpread({}, user, {
+    createdAt: Math.floor(user.created_at / 1000)
+  });else return null;
 };
 
 exports.getUserByUsername = getUserByUsername;
 
-const createUser = async (root, {
-  username,
-  email,
-  password
-}, context) => {
-  const hasUser = (await _databaseclient.default.query('SELECT 1 FROM users WHERE username = $1 OR email = $2 LIMIT 1;', [username, email])).rows.length !== 0;
+const getUserById = async (actualUser, userId) => {
+  const _ref3 = await _databaseclient.default.query("SELECT * FROM users WHERE id = $1 LIMIT 1;", [userId]),
+        users = _ref3.rows;
 
-  if (!hasUser) {
-    await _databaseclient.default.query('INSERT INTO users (username, email, password) VALUES ($1, $2, $3)', [username, email, createHash(password)]);
+  const user = users[0];
+  if (user !== undefined) return _objectSpread({}, user, {
+    createdAt: Math.floor(user.created_at / 1000)
+  });else return null;
+};
+
+exports.getUserById = getUserById;
+
+const createUser = async (actualUser, username, email, password) => {
+  const _ref4 = await _databaseclient.default.query("SELECT 1 FROM users WHERE username = $1 OR email = $2 LIMIT 1;", [username, email]),
+        users = _ref4.rows;
+
+  if (users.length === 0) {
+    await _databaseclient.default.query("INSERT INTO users (username, email, password) VALUES ($1, $2, $3);", [username, email, createHash(password)]);
     return getUserByUsername(root, {
       username
     }, context);
-  } else {
-    return null;
-  }
+  } else return null;
 };
 
 exports.createUser = createUser;
 
-const authenticateUser = async (root, {
-  username,
-  password
-}, context) => {
-  const res = await _databaseclient.default.query('SELECT id, username, email, password, "createdAt" FROM users WHERE username = $1 LIMIT 1;', [username]);
-  if (res.rows.length === 0) return null;
-  const user = res.rows[0];
+const authenticateUser = async (actualUser, username, password) => {
+  const _ref5 = await _databaseclient.default.query("SELECT * FROM users WHERE username = $1 LIMIT 1;", [username]),
+        users = _ref5.rows;
 
-  if (compareHash(user.password, password)) {
-    return _jsonwebtoken.default.sign(user, cert);
-  } else {
-    return null;
-  }
+  const user = users[0];
+  if (user === undefined) return null;
+  if (compareHash(user.password, password)) return {
+    token: _jsonwebtoken.default.sign(user, cert),
+    user
+  };else return null;
 };
 
 exports.authenticateUser = authenticateUser;
