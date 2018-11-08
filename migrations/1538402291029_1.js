@@ -17,7 +17,7 @@ exports.up = (pgm) => {
       type: "varchar(255)",
       notNull: true
     },
-    createdAt: {
+    created_at: {
       type: "timestamp",
       notNull: true,
       default: pgm.func("current_timestamp")
@@ -42,20 +42,20 @@ exports.up = (pgm) => {
       notNull: true
     },
     location: {
-      type: "string",
+      type: "varchar(500)",
       notNull: true
     }
   });
 
   // USER TEAMS
   pgm.createTable("user_teams", {
-    userId: {
+    user_id: {
       type: "integer",
       notNull: true,
       references: '"users"',
       onDelete: "cascade"
     },
-    teamId: {
+    team_id: {
       type: "integer",
       notNull: true,
       references: '"teams"',
@@ -66,23 +66,23 @@ exports.up = (pgm) => {
   // MATCHES
   pgm.createTable("matches", {
     id: "id",
-    homeTeamId: {
+    home_team_id: {
       type: "integer",
       notNull: true,
       references: '"teams"',
       onDelete: "cascade"
     },
-    homeTeamScore: {
+    home_team_score: {
       type: "integer",
       default: null
     },
-    outsideTeamId: {
+    outside_team_id: {
       type: "integer",
       notNull: true,
       references: '"teams"',
       onDelete: "cascade"
     },
-    outsideTeamScore: {
+    outside_team_score: {
       type: "integer",
       default: null
     },
@@ -101,7 +101,7 @@ exports.up = (pgm) => {
   // MATCHES TRAVELS
   pgm.createTable("match_available_travels", {
     id: "id",
-    matchId: {
+    match_id: {
       type: "integer",
       notNull: true,
       references: '"matches"',
@@ -120,7 +120,7 @@ exports.up = (pgm) => {
   // MATCHES TICKETS
   pgm.createTable("match_available_tickets", {
     id: "id",
-    matchId: {
+    match_id: {
       type: "integer",
       notNull: true,
       references: '"matches"',
@@ -138,19 +138,19 @@ exports.up = (pgm) => {
 
   // USER MATCHES
   pgm.createTable("user_matches", {
-    userId: {
+    user_id: {
       type: "integer",
       notNull: true,
       onDelete: "cascade",
       references: '"users"'
     },
-    travelId: {
+    travel_id: {
       type: "integer",
       references: '"match_available_travels"',
       onDelete: "cascade",
       default: null
     },
-    ticketId: {
+    ticket_id: {
       type: "integer",
       references: '"match_available_tickets"',
       onDelete: "cascade",
@@ -161,7 +161,7 @@ exports.up = (pgm) => {
   // BUSES
   pgm.createTable("buses", {
     id: "id",
-    matchId: {
+    match_id: {
       type: "integer",
       notNull: true,
       references: '"matches"'
